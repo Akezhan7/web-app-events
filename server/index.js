@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const sqlite3 = require('sqlite3').verbose();
@@ -6,24 +7,19 @@ const jwt = require('jsonwebtoken');
 const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'; // В реальном проекте используйте переменную окружения
+const PORT = process.env.PORT || 10000;
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// Определение пути к базе данных в зависимости от среды
-const dbPath = process.env.NODE_ENV === 'production' 
-  ? path.join(__dirname, '../events.db')
-  : './events.db';
-
 // Инициализация базы данных
-const db = new sqlite3.Database(dbPath, (err) => {
+const db = new sqlite3.Database('./events.db', (err) => {
   if (err) {
     console.error('Error connecting to database:', err.message);
   } else {
-    console.log(`Connected to the SQLite database at ${dbPath}`);
+    console.log('Connected to the SQLite database');
     createTables();
   }
 });
@@ -314,78 +310,11 @@ app.get('/api/user/events', authenticateToken, (req, res) => {
     });
 });
 
-// Получить всех участников мероприятия (только для админов)
-app.get('/api/events/:id/participants', authenticateToken, isAdmin, (req, res) => {
-  const eventId = req.params.id;
-  
-  db.all(`SELECT u.id, u.name, u.email, r.registration_date 
-          FROM users u 
-          JOIN registrations r ON u.id = r.user_id 
-          WHERE r.event_id = ?
-          ORDER BY r.registration_date`, 
-    [eventId], (err, participants) => {
-      if (err) {
-        return res.status(500).json({ message: err.message });
-      }
-      res.json(participants);
-    });
+// Serve static assets in production
+app.use(express.static(path.join(__dirname, '../client/build')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
 });
 
-// Проверить регистрацию пользователя на мероприятие
-app.get('/api/registration/check/:event_id', authenticateToken, (req, res) => {
-  const userId = req.user.id;
-  const eventId = req.params.event_id;
-  
-  db.get('SELECT * FROM registrations WHERE user_id = ? AND event_id = ?', 
-    [userId, eventId], (err, registration) => {
-      if (err) {
-        return res.status(500).json({ message: err.message });
-      }
-      res.json({ registered: !!registration });
-    });
-});
-
-// Serve static files from client/build in production
-if (process.env.NODE_ENV === 'production') {
-  // Проверяем существование директории client/build
-  const clientBuildPath = path.join(__dirname, '../client/build');
-  
-  try {
-    // Проверяем наличие директории
-    const exists = require('fs').existsSync(clientBuildPath);
-    if (exists) {
-      console.log(`Client build directory found at ${clientBuildPath}`);
-      app.use(express.static(clientBuildPath));
-      
-      // Handle React routing, return all requests to React app
-      app.get('*', (req, res) => {
-        // Исключаем API запросы
-        if (!req.path.startsWith('/api/')) {
-          res.sendFile(path.join(clientBuildPath, 'index.html'));
-        }
-      });
-    } else {
-      console.log(`Client build directory not found at ${clientBuildPath}`);
-      // В случае отсутствия frontend-части, сервер работает только как API
-      app.get('/', (req, res) => {
-        res.json({ message: 'Events API is running. Frontend not deployed.' });
-      });
-    }
-  } catch (err) {
-    console.error('Error checking client build directory:', err);
-    // В случае ошибки, сервер работает только как API
-    app.get('/', (req, res) => {
-      res.json({ message: 'Events API is running. Error checking frontend.' });
-    });
-  }
-}
-
-// Обработчик для проверки работоспособности сервера (health check)
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'ok', environment: process.env.NODE_ENV });
-});
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on http://0.0.0.0:${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+app.listen(PORT, () => console.log(`Сервер запущен на порту ${PORT}`));

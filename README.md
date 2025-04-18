@@ -1,38 +1,71 @@
-# Приложение для управления мероприятиями
+# Events Application
 
-Приложение позволяет просматривать предстоящие мероприятия, регистрироваться на них, а администраторам создавать и редактировать мероприятия.
+Event management application with React frontend and Express backend.
 
-## Функциональность
+## Setup and Installation
 
-- Таймер обратного отсчета до ближайшего мероприятия
-- Регистрация и авторизация пользователей
-- Просмотр списка мероприятий
-- Регистрация на мероприятия
-- Личный кабинет с перечнем мероприятий, на которые зарегистрирован пользователь
-- Администраторский интерфейс для управления мероприятиями
-
-## Установка и запуск
-
-### Требования
-- Node.js v14+
-- npm v6+
-
-### Шаги установки
-1. Клонировать репозиторий
-2. Установить зависимости:
+1. Clone the repository
+2. Install all dependencies:
    ```
    npm run install-all
    ```
-3. Запустить приложение:
+3. Create environment files:
+   - Copy `.env.example` to `.env` in root directory
+   - Copy `server/.env.example` to `server/.env`
+   - Configure the variables as needed
+
+## Development
+
+To run the application in development mode:
+
+```
+npm start
+```
+
+## Production Deployment
+
+1. Build the application:
    ```
-   npm start
+   npm run build:all
    ```
 
-## Учетные данные администратора по умолчанию
-- Email: admin@example.com
-- Пароль: admin123
+2. Start the production server:
+   ```
+   npm run start:prod
+   ```
 
-## Технологии
-- Frontend: React, Material-UI, React Router
-- Backend: Node.js, Express
-- База данных: SQLite
+## Деплой на Render.com
+
+### Подготовка
+
+1. Создайте аккаунт на [Render.com](https://render.com)
+2. Подключите свой GitHub репозиторий
+
+### Web Service для сервера и клиента (объединенный деплой)
+
+1. В Render Dashboard выберите "New" → "Web Service"
+2. Подключите ваш репозиторий
+3. Настройте следующие параметры:
+   - **Name**: events-application (или любое другое имя)
+   - **Environment**: Node
+   - **Build Command**: `npm run install-all && npm run build`
+   - **Start Command**: `npm run start:prod`
+   - **Plan**: Free (или другой по вашему выбору)
+
+4. В разделе "Environment Variables" добавьте все переменные из `.env.example`
+5. Нажмите "Create Web Service"
+
+### Отслеживание статуса
+
+После создания сервиса, Render автоматически запустит процесс сборки и деплоя.
+Вы можете отслеживать статус в разделе "Events" вашего Web Service.
+
+## Project Structure
+
+- `client/` - React frontend application
+- `server/` - Express backend API
+- `package.json` - Root package for running both client and server
+
+## Environment Variables
+
+See `.env.example` for required environment variables.

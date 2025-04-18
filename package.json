@@ -1,27 +1,17 @@
 {
-  "name": "events-app",
+  "name": "events-application",
   "version": "1.0.0",
-  "description": "Events application",
-  "main": "index.js",
+  "description": "Event management application",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
-    "build": "if [ -d \"client\" ]; then cd client && npm install && npm run build; fi"
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm start",
+    "client": "cd client && npm start",
+    "install-all": "npm install && cd server && npm install && cd ../client && npm install",
+    "build": "cd client && npm run build",
+    "build:all": "npm run build && cd server && npm run build",
+    "start:prod": "cd server && npm run start:prod"
   },
-  "engines": {
-    "node": ">=14.0.0"
-  },
-  "keywords": ["events", "react", "express"],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "sqlite3": "^5.1.6",
-    "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.0"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.22"
+    "concurrently": "^8.2.1"
   }
 }
