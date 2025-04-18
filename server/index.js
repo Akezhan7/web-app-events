@@ -308,7 +308,16 @@ app.get('/api/user/events', authenticateToken, (req, res) => {
       res.json(events);
     });
 });
-
+// Serve static files from client/build in production
+if (process.env.NODE_ENV === 'production') {
+  // Serve static files
+  app.use(express.static(path.join(__dirname, '../client/build')));
+  
+  // Handle React routing, return all requests to React app
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+  });
+}
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
