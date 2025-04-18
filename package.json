@@ -7,7 +7,7 @@
     "start": "node server/index.js",
     "dev": "nodemon server/index.js",
     "build": "cd client && npm install && npm run build",
-    "postinstall": "cd server && npm install"
+    "postinstall": "if [ -d \"client\" ]; then cd client && npm install; fi && cd server && npm install"
   },
   "engines": {
     "node": ">=14.0.0"

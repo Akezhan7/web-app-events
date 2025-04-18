@@ -347,13 +347,37 @@ app.get('/api/registration/check/:event_id', authenticateToken, (req, res) => {
 
 // Serve static files from client/build in production
 if (process.env.NODE_ENV === 'production') {
-  // Serve static files
-  app.use(express.static(path.join(__dirname, '../client/build')));
+  // Проверяем существование директории client/build
+  const clientBuildPath = path.join(__dirname, '../client/build');
   
-  // Handle React routing, return all requests to React app
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
-  });
+  try {
+    // Проверяем наличие директории
+    const exists = require('fs').existsSync(clientBuildPath);
+    if (exists) {
+      console.log(`Client build directory found at ${clientBuildPath}`);
+      app.use(express.static(clientBuildPath));
+      
+      // Handle React routing, return all requests to React app
+      app.get('*', (req, res) => {
+        // Исключаем API запросы
+        if (!req.path.startsWith('/api/')) {
+          res.sendFile(path.join(clientBuildPath, 'index.html'));
+        }
+      });
+    } else {
+      console.log(`Client build directory not found at ${clientBuildPath}`);
+      // В случае отсутствия frontend-части, сервер работает только как API
+      app.get('/', (req, res) => {
+        res.json({ message: 'Events API is running. Frontend not deployed.' });
+      });
+    }
+  } catch (err) {
+    console.error('Error checking client build directory:', err);
+    // В случае ошибки, сервер работает только как API
+    app.get('/', (req, res) => {
+      res.json({ message: 'Events API is running. Error checking frontend.' });
+    });
+  }
 }
 
 // Обработчик для проверки работоспособности сервера (health check)
