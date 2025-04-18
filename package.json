@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "nodemon server/index.js",
-    "build": "cd client && npm install && npm run build",
-    "postinstall": "if [ -d \"client\" ]; then cd client && npm install; fi && cd server && npm install"
+    "build": "if [ -d \"client\" ]; then cd client && npm install && npm run build; fi",
+    "postinstall": "if [ -d \"server\" ]; then cd server && npm install; fi"
   },
   "engines": {
     "node": ">=14.0.0"
@@ -17,5 +17,12 @@
   "license": "ISC",
   "devDependencies": {
     "nodemon": "^2.0.22"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "sqlite3": "^5.1.6",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0"
   }
 }
