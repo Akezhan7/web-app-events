@@ -7,18 +7,23 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const JWT_SECRET = 'your-secret-key'; // В реальном проекте используйте переменную окружения
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'; // В реальном проекте используйте переменную окружения
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
+// Определение пути к базе данных в зависимости от среды
+const dbPath = process.env.NODE_ENV === 'production' 
+  ? path.join(__dirname, '../events.db')
+  : './events.db';
+
 // Инициализация базы данных
-const db = new sqlite3.Database('./events.db', (err) => {
+const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Error connecting to database:', err.message);
   } else {
-    console.log('Connected to the SQLite database');
+    console.log(`Connected to the SQLite database at ${dbPath}`);
     createTables();
   }
 });
@@ -309,6 +314,54 @@ app.get('/api/user/events', authenticateToken, (req, res) => {
     });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+// Получить всех участников мероприятия (только для админов)
+app.get('/api/events/:id/participants', authenticateToken, isAdmin, (req, res) => {
+  const eventId = req.params.id;
+  
+  db.all(`SELECT u.id, u.name, u.email, r.registration_date 
+          FROM users u 
+          JOIN registrations r ON u.id = r.user_id 
+          WHERE r.event_id = ?
+          ORDER BY r.registration_date`, 
+    [eventId], (err, participants) => {
+      if (err) {
+        return res.status(500).json({ message: err.message });
+      }
+      res.json(participants);
+    });
+});
+
+// Проверить регистрацию пользователя на мероприятие
+app.get('/api/registration/check/:event_id', authenticateToken, (req, res) => {
+  const userId = req.user.id;
+  const eventId = req.params.event_id;
+  
+  db.get('SELECT * FROM registrations WHERE user_id = ? AND event_id = ?', 
+    [userId, eventId], (err, registration) => {
+      if (err) {
+        return res.status(500).json({ message: err.message });
+      }
+      res.json({ registered: !!registration });
+    });
+});
+
+// Serve static files from client/build in production
+if (process.env.NODE_ENV === 'production') {
+  // Serve static files
+  app.use(express.static(path.join(__dirname, '../client/build')));
+  
+  // Handle React routing, return all requests to React app
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+  });
+}
+
+// Обработчик для проверки работоспособности сервера (health check)
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'ok', environment: process.env.NODE_ENV });
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on http://0.0.0.0:${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
