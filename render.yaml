@@ -2,7 +2,7 @@ services:
   - type: web
     name: events-app
     env: node
-    buildCommand: npm install && (if [ -d "client" ]; then cd client && npm install && npm run build; fi)&& (if [ -d "server" ]; then cd server && npm install; fi)
+    buildCommand: ls -la && npm install && (if [ -d "client" ]; then echo "Client directory found" && cd client && npm install && npm run build && cd ..; else echo "Client directory not found"; fi) && (if [ -d "server" ]; then cd server && npm install; fi)
     startCommand: node index.js
     envVars:
       - key: NODE_ENV
