@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../contexts/AuthContext';
+import API_URL from '../config/api';
 
 function EventDetails() {
   const { id } = useParams();
@@ -15,13 +16,13 @@ function EventDetails() {
   useEffect(() => {
     const fetchEventDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/api/events/${id}`);
+        const response = await axios.get(`${API_URL}/api/events/${id}`);
         setEvent(response.data);
         
         // Проверяем, зарегистрирован ли пользователь на это мероприятие
         if (currentUser) {
           try {
-            const userEventsResponse = await axios.get('http://localhost:3001/api/user/events');
+            const userEventsResponse = await axios.get(`${API_URL}/api/user/events`);
             const registeredEventIds = userEventsResponse.data.map(e => e.id);
             setIsRegistered(registeredEventIds.includes(Number(id)));
           } catch (err) {
@@ -46,7 +47,7 @@ function EventDetails() {
     }
 
     try {
-      await axios.post('http://localhost:3001/api/registration', { event_id: id });
+      await axios.post(`${API_URL}/api/registration`, { event_id: id });
       setIsRegistered(true);
     } catch (err) {
       setError(err.response?.data?.message || 'Ошибка при регистрации');
@@ -55,7 +56,7 @@ function EventDetails() {
 
   const handleCancelRegistration = async () => {
     try {
-      await axios.delete(`http://localhost:3001/api/registration/${id}`);
+      await axios.delete(`${API_URL}/api/registration/${id}`);
       setIsRegistered(false);
     } catch (err) {
       setError(err.response?.data?.message || 'Ошибка при отмене регистрации');

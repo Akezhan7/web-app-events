@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import EventCard from '../components/EventCard';
+import API_URL from '../config/api';
 
 function Dashboard() {
   const [userEvents, setUserEvents] = useState([]);
@@ -13,7 +14,7 @@ function Dashboard() {
   useEffect(() => {
     const fetchUserEvents = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/user/events');
+        const response = await axios.get(`${API_URL}/api/user/events`);
         setUserEvents(response.data);
         setLoading(false);
       } catch (err) {
@@ -27,7 +28,7 @@ function Dashboard() {
 
   const handleCancelRegistration = async (eventId) => {
     try {
-      await axios.delete(`http://localhost:3001/api/registration/${eventId}`);
+      await axios.delete(`${API_URL}/api/registration/${eventId}`);
       setUserEvents(userEvents.filter(event => event.id !== eventId));
     } catch (err) {
       setError('Не удалось отменить регистрацию');

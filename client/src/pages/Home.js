@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import EventCard from '../components/EventCard';
 import { AccessTime } from '@mui/icons-material';
+import API_URL from '../config/api';
 
 function Home() {
     const [events, setEvents] = useState([]);
@@ -24,7 +25,7 @@ function Home() {
         // Получаем ближайшее мероприятие для таймера
         const fetchEvents = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/api/events');
+                const response = await axios.get(`${API_URL}/api/events`);
                 setEvents(response.data);
                 
                 // Если есть мероприятия, устанавливаем таймер до ближайшего

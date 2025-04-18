@@ -8,18 +8,27 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 10000;
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET || 'your_very_secure_secret_key_change_this_in_production';
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? process.env.CLIENT_URL || true
+    : 'http://localhost:3000',
+  credentials: true
+}));
 app.use(express.json());
 
-// Инициализация базы данных
-const db = new sqlite3.Database('./events.db', (err) => {
+// Инициализация базы данных с абсолютным путем для production
+const dbPath = process.env.NODE_ENV === 'production' 
+  ? path.join(__dirname, 'events.db')
+  : './events.db';
+
+const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Error connecting to database:', err.message);
   } else {
-    console.log('Connected to the SQLite database');
+    console.log('Connected to the SQLite database at:', dbPath);
     createTables();
   }
 });

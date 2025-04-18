@@ -1,71 +1,71 @@
-# Events Application
+# События и мероприятия
 
-Event management application with React frontend and Express backend.
+Приложение для управления мероприятиями и регистрацией участников.
 
-## Setup and Installation
+## Локальная разработка
 
-1. Clone the repository
-2. Install all dependencies:
-   ```
-   npm run install-all
-   ```
-3. Create environment files:
-   - Copy `.env.example` to `.env` in root directory
-   - Copy `server/.env.example` to `server/.env`
-   - Configure the variables as needed
+1. Установите зависимости:
+```
+npm run install-all
+```
 
-## Development
-
-To run the application in development mode:
-
+2. Запустите приложение:
 ```
 npm start
 ```
 
-## Production Deployment
-
-1. Build the application:
-   ```
-   npm run build:all
-   ```
-
-2. Start the production server:
-   ```
-   npm run start:prod
-   ```
-
 ## Деплой на Render.com
 
-### Подготовка
+### 1. Подготовка
 
 1. Создайте аккаунт на [Render.com](https://render.com)
-2. Подключите свой GitHub репозиторий
+2. Загрузите код на GitHub или GitLab
 
-### Web Service для сервера и клиента (объединенный деплой)
+### 2. Создание веб-сервиса
 
-1. В Render Dashboard выберите "New" → "Web Service"
-2. Подключите ваш репозиторий
-3. Настройте следующие параметры:
-   - **Name**: events-application (или любое другое имя)
-   - **Environment**: Node
+1. В Render.com перейдите в раздел "New" и выберите "Web Service"
+2. Подключите свой репозиторий
+3. Укажите следующие настройки:
+   - **Name**: `events-app` (или любое другое имя)
+   - **Environment**: `Node`
    - **Build Command**: `npm run install-all && npm run build`
    - **Start Command**: `npm run start:prod`
-   - **Plan**: Free (или другой по вашему выбору)
 
-4. В разделе "Environment Variables" добавьте все переменные из `.env.example`
-5. Нажмите "Create Web Service"
+### 3. Настройка переменных окружения
 
-### Отслеживание статуса
+В разделе "Environment" на Render.com добавьте следующие переменные окружения:
 
-После создания сервиса, Render автоматически запустит процесс сборки и деплоя.
-Вы можете отслеживать статус в разделе "Events" вашего Web Service.
+- `NODE_ENV`: `production`
+- `PORT`: `10000` (Render.com автоматически установит порт для проекта)
+- `JWT_SECRET`: [создайте сложный секретный ключ]
 
-## Project Structure
+Если вы используете один веб-сервис для бэкенда и фронтенда (монолитное приложение):
+- Не нужно устанавливать `REACT_APP_API_URL`
 
-- `client/` - React frontend application
-- `server/` - Express backend API
-- `package.json` - Root package for running both client and server
+Если вы разделяете бэкенд и фронтенд на разные сервисы:
+- Для бэкенда: `CLIENT_URL`: URL вашего фронтенд-приложения
+- Для фронтенда: `REACT_APP_API_URL`: URL вашего бэкенд-API
 
-## Environment Variables
+### 4. Настройка базы данных
 
-See `.env.example` for required environment variables.
+В случае использования SQLite:
+- Render.com поддерживает SQLite, но данные будут сбрасываться при перезапуске сервиса
+- Для production рекомендуется использовать PostgreSQL или другую внешнюю базу данных
+
+### 5. Завершение настройки
+
+1. Нажмите "Create Web Service"
+2. Дождитесь завершения деплоя
+3. После успешного деплоя, ваше приложение будет доступно по URL, предоставленному Render.com
+
+## Данные для входа по умолчанию
+
+- **Администратор**:
+  - Email: `admin@example.com`
+  - Пароль: `admin123`
+
+## Важные замечания
+
+1. При использовании SQLite на Render.com, база данных будет сбрасываться при каждом перезапуске сервиса, так как файловая система на Render эфемерная.
+2. Для продакшн-среды рекомендуется использовать внешнюю базу данных, например, PostgreSQL (Render предоставляет PostgreSQL как отдельный сервис).
+3. После деплоя на Render вы можете управлять своим приложением через админ-панель по адресу `https://ваш-домен.onrender.com/login`.

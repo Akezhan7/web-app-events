@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../config/api';
 import {
   Box,
   Button,
@@ -75,7 +76,7 @@ function AdminDashboard() {
   const fetchEvents = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:3001/api/events');
+      const response = await axios.get(`${API_URL}/api/events`);
       // Сортировка по дате (сначала новейшие)
       const sortedEvents = response.data.sort((a, b) => 
         new Date(b.date) - new Date(a.date)
@@ -131,11 +132,11 @@ function AdminDashboard() {
       
       if (editingEvent) {
         // Обновление существующего мероприятия
-        await axios.put(`http://localhost:3001/api/events/${editingEvent.id}`, eventData);
+        await axios.put(`${API_URL}/api/events/${editingEvent.id}`, eventData);
         showSnackbar('Мероприятие успешно обновлено');
       } else {
         // Создание нового мероприятия
-        await axios.post('http://localhost:3001/api/events', eventData);
+        await axios.post(`${API_URL}/api/events`, eventData);
         showSnackbar('Мероприятие успешно создано');
       }
       
@@ -163,7 +164,7 @@ function AdminDashboard() {
     
     try {
       setLoading(true);
-      await axios.delete(`http://localhost:3001/api/events/${eventToDelete.id}`);
+      await axios.delete(`${API_URL}/api/events/${eventToDelete.id}`);
       setEvents(events.filter(event => event.id !== eventToDelete.id));
       showSnackbar('Мероприятие успешно удалено');
     } catch (err) {
