@@ -4,7 +4,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import App from './App';
 
-// Создаем тему Material UI
+
 const theme = createTheme({
   palette: {
     primary: {
